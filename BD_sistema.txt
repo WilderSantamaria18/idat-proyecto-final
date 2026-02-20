@@ -1,0 +1,97 @@
+-- Base de datos para el proyecto de gestión académica y financiera
+-- Crear la base de datos (si no existe)
+CREATE DATABASE IF NOT EXISTS proyecto_academico
+CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+USE proyecto_academico;
+
+-- Tabla de usuarios
+CREATE TABLE usuario (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL, -- contraseña encriptada con BCrypt
+    rol VARCHAR(20) DEFAULT 'ESTUDIANTE',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla de tareas académicas
+CREATE TABLE tarea (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(200) NOT NULL,
+    descripcion TEXT,
+    fecha_limite DATE NOT NULL,
+    prioridad ENUM('ALTA', 'MEDIA', 'BAJA') NOT NULL DEFAULT 'MEDIA',
+    estado ENUM('PENDIENTE', 'COMPLETADA') NOT NULL DEFAULT 'PENDIENTE',
+    usuario_id INT NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE,
+    INDEX idx_usuario (usuario_id),
+    INDEX idx_fecha_limite (fecha_limite),
+    INDEX idx_estado (estado)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla de asignaturas
+CREATE TABLE asignatura (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    usuario_id INT NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE,
+    INDEX idx_usuario_asignatura (usuario_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla de ponderaciones (porcentajes de cada evaluación en una asignatura)
+CREATE TABLE ponderacion (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    asignatura_id INT NOT NULL,
+    porcentaje DECIMAL(5,2) NOT NULL, -- ej: 0.10 para 10%, la suma debe ser 1.00
+    orden INT NOT NULL, -- número de orden (1,2,3,4) para identificar la evaluación
+    FOREIGN KEY (asignatura_id) REFERENCES asignatura(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_asignatura_orden (asignatura_id, orden),
+    CONSTRAINT chk_porcentaje CHECK (porcentaje >= 0 AND porcentaje <= 1)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla de evaluaciones (notas registradas)
+CREATE TABLE evaluacion (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    asignatura_id INT NOT NULL,
+    ponderacion_id INT NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    nota DECIMAL(4,2) NOT NULL, -- de 0 a 20
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (asignatura_id) REFERENCES asignatura(id) ON DELETE CASCADE,
+    FOREIGN KEY (ponderacion_id) REFERENCES ponderacion(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_asignatura_ponderacion (asignatura_id, ponderacion_id), -- garantiza una sola evaluación por ponderación en una asignatura
+    CONSTRAINT chk_nota CHECK (nota >= 0 AND nota <= 20)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla de ingresos
+CREATE TABLE ingreso (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    concepto VARCHAR(200) NOT NULL,
+    monto DECIMAL(10,2) NOT NULL,
+    fecha DATE NOT NULL,
+    origen ENUM('TRABAJO', 'PADRES', 'BECA', 'OTROS') NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE,
+    INDEX idx_usuario_ingreso (usuario_id),
+    INDEX idx_fecha_ingreso (fecha),
+    CONSTRAINT chk_monto_ingreso CHECK (monto > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla de gastos
+CREATE TABLE gasto (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    concepto VARCHAR(200) NOT NULL,
+    monto DECIMAL(10,2) NOT NULL,
+    fecha DATE NOT NULL,
+    categoria ENUM('PASAJES', 'COMIDA', 'DESAYUNO', 'FOTOCOPIAS', 'MATERIAL', 'OCIO', 'OTROS') NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE,
+    INDEX idx_usuario_gasto (usuario_id),
+    INDEX idx_fecha_gasto (fecha),
+    CONSTRAINT chk_monto_gasto CHECK (monto > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Índices adicionales para optimizar consultas comunes
+CREATE INDEX idx_evaluacion_asignatura ON evaluacion (asignatura_id);
+CREATE INDEX idx_ponderacion_asignatura ON ponderacion (asignatura_id);
