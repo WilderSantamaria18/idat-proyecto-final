@@ -13,7 +13,7 @@ import jakarta.persistence.PrePersist;
 @Entity
 @Table(name = "usuario")
 @Data
-public class usuario {
+public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
