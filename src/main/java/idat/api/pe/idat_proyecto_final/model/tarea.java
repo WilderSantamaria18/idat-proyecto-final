@@ -1,38 +1,33 @@
 package idat.api.pe.idat_proyecto_final.model;
 
+import jakarta.persistence.*;
+import lombok.Data;
 import java.time.LocalDate;
 
-import org.springframework.security.core.parameters.P;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.Data;
-
-@Table(name ="tarea")
-@Entity
 @Data
+@Entity
+@Table(name = "tarea")
 public class Tarea {
     
     @Id 
-    @GeneratedValue(strategy = generationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(length = 200, nullable = false)
     private String titulo;
+    
+    @Column(columnDefinition = "TEXT")
     private String descripcion;
-    private LocalDate fechalimite;
-     @Enumerated(EnumType.STRING)
-    @Column(length = 10)
+    
+    @Column(name = "fecha_limite", nullable = false)
+    private LocalDate fechaLimite;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private PrioridadTarea prioridad = PrioridadTarea.MEDIA;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 12)
+    @Column(nullable = false)
     private EstadoTarea estado = EstadoTarea.PENDIENTE;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -41,6 +36,4 @@ public class Tarea {
 
     @Column(name = "google_event_id", length = 255)
     private String googleEventId;
-
-
 }

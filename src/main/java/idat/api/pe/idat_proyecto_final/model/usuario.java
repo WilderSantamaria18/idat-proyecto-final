@@ -1,30 +1,50 @@
 package idat.api.pe.idat_proyecto_final.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
-import jakarta.persistence.PrePersist;
+import java.util.List;
 
+@Data
 @Entity
 @Table(name = "usuario")
-@Data
 public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    
+    @Column(length = 100, nullable = false)
     private String nombre;
+    
+    @Column(length = 100, nullable = false, unique = true)
     private String email;
+    
+    @Column(length = 255, nullable = false)
     private String password;
-    private String rol;
-
-    @Column(name = "fecha_creacion", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", nullable = false)
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RolUsuario rol = RolUsuario.ESTUDIANTE;
+    
+    @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion;
+    
+    // Relaciones
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Tarea> tareas;
+    
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)  
+    private List<Asignatura> asignaturas;
+    
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Ingreso> ingresos;
+    
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Gasto> gastos;
+    
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private UsuarioToken usuarioToken;
 
     @PrePersist
     public void prePersist() {
