@@ -1,12 +1,13 @@
 package idat.api.pe.idat_proyecto_final.service.impl;
 
+import idat.api.pe.idat_proyecto_final.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import idat.api.pe.idat_proyecto_final.dto.RegistroUsuario;
 import idat.api.pe.idat_proyecto_final.model.RolUsuario;
 import idat.api.pe.idat_proyecto_final.model.Usuario;
-import idat.api.pe.idat_proyecto_final.repository.UsuarioRepository;
+
 import idat.api.pe.idat_proyecto_final.service.IUsuarioService;
 
 import java.time.LocalDateTime;

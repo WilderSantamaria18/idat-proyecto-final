@@ -26,7 +26,7 @@ public class ControllerExceptionHandler {
                 .build();
 
         return GenericResponse.builder()
-                .errorMessage(errorMessage)
+                .error(errorMessage)
                 .build();
     }
 

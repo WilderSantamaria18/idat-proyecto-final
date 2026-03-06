@@ -14,13 +14,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<GenericResponse<Object>> handleGenericException(Exception ex) {
-        GenericResponse<Object> response = GenericResponse.builder()
-                .error(ErrorMessage.builder()
-                        .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                        .dateError(LocalDateTime.now())
-                        .message("Error interno del servidor")
-                        .description(ex.getMessage())
-                        .build())
+        ErrorMessage errorMsg = ErrorMessage.builder()
+                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .dateError(LocalDateTime.now())
+                .message("Error interno del servidor")
+                .description(ex.getMessage())
+                .build();
+        
+        GenericResponse<Object> response = GenericResponse.<Object>builder()
+                .error(errorMsg)
                 .build();
         
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -28,13 +30,15 @@ public class GlobalExceptionHandler {
     
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<GenericResponse<Object>> handleRuntimeException(RuntimeException ex) {
-        GenericResponse<Object> response = GenericResponse.builder()
-                .error(ErrorMessage.builder()
-                        .statusCode(HttpStatus.BAD_REQUEST.value())
-                        .dateError(LocalDateTime.now())
-                        .message("Error en la solicitud")
-                        .description(ex.getMessage())
-                        .build())
+        ErrorMessage errorMsg = ErrorMessage.builder()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .dateError(LocalDateTime.now())
+                .message("Error en la solicitud")
+                .description(ex.getMessage())
+                .build();
+        
+        GenericResponse<Object> response = GenericResponse.<Object>builder()
+                .error(errorMsg)
                 .build();
         
         return ResponseEntity.badRequest().body(response);

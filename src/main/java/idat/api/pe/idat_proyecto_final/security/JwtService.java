@@ -65,6 +65,7 @@ public class JwtService implements IJwtService {
 
     @Override
     public void generarAutenticacion(Claims claims) {
+        @SuppressWarnings("unchecked")
         List<String> authorities = claims.get("authorities", List.class);
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(

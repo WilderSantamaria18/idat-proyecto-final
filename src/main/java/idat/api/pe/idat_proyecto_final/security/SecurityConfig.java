@@ -33,18 +33,18 @@ public class SecurityConfig {
                                     .requestMatchers(HttpMethod.GET, "/api/v1/hello/public")
                                     .permitAll()
                                     .anyRequest().authenticated())
-                .authenticationProvider(daoAuth())
+                .authenticationProvider(authenticationProvider())
                 .addFilterBefore(new FiltroJwtAuth(jwt),
                         UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
-    AuthenticationProvider daoAuth(){
-        DaoAuthenticationProvider dao = new DaoAuthenticationProvider();
-        dao.setUserDetailsService(detalleUsuarioService);
-        dao.setPasswordEncoder(passwordEncoder());
-        return dao;
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(detalleUsuarioService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
     }
 
     @Bean
