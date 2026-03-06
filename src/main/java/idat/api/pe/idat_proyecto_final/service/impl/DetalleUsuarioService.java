@@ -1,6 +1,7 @@
 package idat.api.pe.idat_proyecto_final.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -18,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DetalleUsuarioService implements UserDetailsService {
 
-    private final IUsuarioService usuarioService;
+    private final @Lazy IUsuarioService usuarioService;
     
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

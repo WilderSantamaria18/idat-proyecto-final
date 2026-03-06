@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -20,8 +21,15 @@ import java.util.stream.Collectors;
 @Service
 public class JwtService implements IJwtService {
 
-    private static final String SECRET = "mi-clave-super-secreta-proyecto-final-123456789-idat";
-    private static final Key KEY = Keys.hmacShaKeyFor(SECRET.getBytes());
+    @Value("${jwt.secret}")
+    private String SECRET;
+    
+    @Value("${jwt.expiration}")
+    private long EXPIRATION_TIME;
+    
+    private Key getSigningKey() {
+        return Keys.hmacShaKeyFor(SECRET.getBytes());
+    }
 
     @Override
     public String generarToken(Usuario usuario, List<GrantedAuthority> authorities) {
@@ -33,14 +41,14 @@ public class JwtService implements IJwtService {
                                 .map(GrantedAuthority::getAuthority)
                                 .collect(Collectors.toList())
                 ).issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis()+3600000)) // 1 hora
-                .signWith(KEY)
+                .expiration(new Date(System.currentTimeMillis()+EXPIRATION_TIME))
+                .signWith(getSigningKey())
                 .compact();
     }
 
     @Override
     public Claims obtenerClaims(String token) {
-        return Jwts.parser().verifyWith((SecretKey)KEY).build()
+        return Jwts.parser().verifyWith((SecretKey)getSigningKey()).build()
                 .parseSignedClaims(token).getPayload();
     }
     

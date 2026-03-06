@@ -2,6 +2,7 @@ package idat.api.pe.idat_proyecto_final.service.impl;
 
 import idat.api.pe.idat_proyecto_final.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import idat.api.pe.idat_proyecto_final.dto.RegistroUsuario;
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 public class UsuarioService implements IUsuarioService {
 
     private final UsuarioRepository usuarioRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final @Lazy BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public Usuario getByEmail(String email) {

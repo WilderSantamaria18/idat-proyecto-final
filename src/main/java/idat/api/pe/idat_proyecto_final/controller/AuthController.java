@@ -1,6 +1,8 @@
 package idat.api.pe.idat_proyecto_final.controller;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,13 +23,22 @@ import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthController {
 
-    private final UsuarioService usuarioService;
-    private final DetalleUsuarioService detalleUsuarioService;
     private final IJwtService jwtService;
     private final AuthenticationManager authManager;
+    
+    @Autowired
+    private ApplicationContext applicationContext;
+    
+    private UsuarioService getUsuarioService() {
+        return applicationContext.getBean(UsuarioService.class);
+    }
+    
+    private DetalleUsuarioService getDetalleUsuarioService() {
+        return applicationContext.getBean(DetalleUsuarioService.class);
+    }
     
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
         "^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})$"
@@ -42,9 +53,9 @@ public class AuthController {
                             login.getEmail(),
                             login.getPassword()));
             
-            Usuario usuario = usuarioService.getByEmail(login.getEmail());
+            Usuario usuario = getUsuarioService().getByEmail(login.getEmail());
             String token = jwtService.generarToken(usuario,
-                    detalleUsuarioService.getAuthorities(usuario));
+                    getDetalleUsuarioService().getAuthorities(usuario));
             
             UsuarioJwt usuarioJwt = UsuarioJwt.builder()
                     .id(usuario.getId())
@@ -87,7 +98,7 @@ public class AuthController {
             }
             
             // Validar unicidad del email
-            if (usuarioService.existsByEmail(registroUsuario.getEmail())) {
+            if (getUsuarioService().existsByEmail(registroUsuario.getEmail())) {
                 response = GenericResponse.<UsuarioJwt>builder()
                         .error(ErrorMessage.builder()
                                 .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -99,9 +110,9 @@ public class AuthController {
             }
             
             // Registrar usuario
-            Usuario usuario = usuarioService.registrarUsuario(registroUsuario);
+            Usuario usuario = getUsuarioService().registrarUsuario(registroUsuario);
             String token = jwtService.generarToken(usuario,
-                    detalleUsuarioService.getAuthorities(usuario));
+                    getDetalleUsuarioService().getAuthorities(usuario));
             
             UsuarioJwt usuarioJwt = UsuarioJwt.builder()
                     .id(usuario.getId())
